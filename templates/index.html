@@ -67,12 +67,68 @@
             border-radius: 8px;
             font-size: 18px;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #1f3c88;
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            margin-bottom: 0;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            width: auto;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #111;
+            background: transparent;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Teen Mental Health Predictor</h1>
-        <p>Enter the details below to predict the student's stress level.</p>
+        <p>Enter the details below to predict whether the student may be at risk of depression.</p>
 
         <form method="POST">
             <label for="age">Age</label>
@@ -113,26 +169,44 @@
                 <option value="high">High</option>
             </select>
 
+            <label for="stress_level">Stress Level</label>
+            <input type="number" name="stress_level" step="1" required>
+
             <label for="anxiety_level">Anxiety Level</label>
             <input type="number" name="anxiety_level" step="1" required>
 
             <label for="addiction_level">Addiction Level</label>
             <input type="number" name="addiction_level" step="1" required>
 
-            <label for="depression_label">Depression Label</label>
-            <select name="depression_label" required>
-                <option value="0">0</option>
-                <option value="1">1</option>
-            </select>
-
             <button type="submit">Predict</button>
         </form>
-
-        {% if prediction is not none %}
-            <div class="result">
-                Predicted stress level: <strong>{{ prediction }}</strong>
-            </div>
-        {% endif %}
     </div>
+
+    {% if prediction_text %}
+        <div class="modal show" id="predictionModal">
+            <div class="modal-content">
+                <button class="close-button" id="closeModal" aria-label="Close modal">&times;</button>
+                <h2>Prediction Result</h2>
+                <p><strong>{{ prediction_text }}</strong></p>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        const modal = document.getElementById("predictionModal");
+        const closeButton = document.getElementById("closeModal");
+
+        if (modal && closeButton) {
+            closeButton.addEventListener("click", () => {
+                modal.classList.remove("show");
+            });
+
+            modal.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    modal.classList.remove("show");
+                }
+            });
+        }
+    </script>
 </body>
 </html>

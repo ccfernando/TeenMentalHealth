@@ -1,21 +1,35 @@
 # Teen Mental Health Predictor
 
-This project is a simple machine learning web application built with Python, Flask, pandas, and scikit-learn.
+This project is a beginner-friendly Flask machine learning web app that predicts whether a student is at risk of depression.
 
-It uses a dataset of teen lifestyle and mental health indicators to predict a student's `stress_level`.
+The app uses a scikit-learn `Pipeline` with:
 
-The project has two main parts:
+- `SimpleImputer` for missing values
+- `OneHotEncoder` for categorical features
+- `ColumnTransformer` for preprocessing
+- `LogisticRegression` for classification
 
-- `train_model.py` trains the machine learning model and saves it as `model.pkl`
-- `app.py` runs a Flask web app where a user can enter values in a form and get a predicted stress level
+The trained pipeline is saved as `model.pkl` and loaded by the Flask app for predictions.
+
+## What The App Predicts
+
+The model predicts:
+
+- `depression_label = 1` -> `At Risk of Depression`
+- `depression_label = 0` -> `Not At Risk`
+
+This is a school or learning project and should not be treated as a medical diagnosis tool.
 
 ## Features
 
-- Loads data from `data/mental_health.csv`
-- Preprocesses numeric and categorical data automatically
-- Trains a Logistic Regression model using a scikit-learn pipeline
-- Saves the full trained pipeline into `model.pkl`
-- Runs a browser-based form for making predictions
+- Trains a machine learning model from `data/mental_health.csv`
+- Uses a full scikit-learn pipeline so preprocessing and prediction stay together
+- Displays training metrics such as accuracy and log loss
+- Saves the trained model as `model.pkl`
+- Runs a Flask web app with a simple HTML form
+- Shows the prediction result in a modal
+- Includes basic error handling for failed predictions
+- Works with deployment platforms like Render
 
 ## Project Structure
 
@@ -32,30 +46,43 @@ TeenMentalHealth/
     `-- index.html
 ```
 
+## Dataset Columns
+
+The dataset includes these columns:
+
+- `age`
+- `gender`
+- `daily_social_media_hours`
+- `platform_usage`
+- `sleep_hours`
+- `screen_time_before_sleep`
+- `academic_performance`
+- `physical_activity`
+- `social_interaction_level`
+- `stress_level`
+- `anxiety_level`
+- `addiction_level`
+- `depression_label`
+
+The training script uses `depression_label` as the target column and uses the remaining columns as input features.
+
 ## Requirements
 
 Before running the project, make sure you have:
 
-- Python 3.10 or newer installed
-- `pip` installed and working
-- Internet access for installing dependencies the first time
+- Python 3.10 or newer
+- `pip`
 
-## How To Run The Project
+## Installation
 
-### 1. Download or clone the project
-
-If you already have the files locally, you can skip this step.
-
-To clone from GitHub:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ccfernando/TeenMentalHealth.git
 cd TeenMentalHealth
 ```
 
-### 2. Create a virtual environment
-
-Using a virtual environment is recommended so the project dependencies do not affect other Python projects on your computer.
+### 2. Create and activate a virtual environment
 
 On Windows:
 
@@ -71,73 +98,132 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install the required packages
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs:
+## Train The Model
 
-- `Flask`
-- `pandas`
-- `scikit-learn`
-
-### 4. Train the model
-
-Run the training script to create or refresh the saved model file:
+Run:
 
 ```bash
 python train_model.py
 ```
 
-What this script does:
+The training script:
 
-- reads the dataset from `data/mental_health.csv`
-- separates the target column `stress_level`
-- fills missing values
-- converts categorical text values into numeric features
+- loads the dataset from `data/mental_health.csv`
+- sets `depression_label` as the prediction target
+- uses `X = data.drop(columns=[target])` and `y = data[target]`
+- preprocesses numeric and categorical columns
 - trains a Logistic Regression model
-- saves the trained pipeline to `model.pkl`
+- prints training accuracy, training loss, validation loss, validation accuracy, and final accuracy
+- saves the updated pipeline as `model.pkl`
 
-After it finishes, you should see output in the terminal showing sample predictions and a message confirming that `model.pkl` was saved.
+Example output includes:
 
-### 5. Start the Flask web app
+- training accuracy
+- training loss
+- validation loss
+- validation accuracy
+- final accuracy
+
+## Run The Flask App
+
+Start the web app:
 
 ```bash
 python app.py
 ```
 
-If the app starts correctly, Flask will show a local development server address similar to:
+Then open the local server in your browser. During local development, it will usually be:
 
 ```text
-http://127.0.0.1:5000/
+http://127.0.0.1:10000/
 ```
 
-Open that address in your browser.
+The app is configured with:
 
-### 6. Use the prediction form
+- `host="0.0.0.0"`
+- `port=os.environ.get("PORT", 10000)`
 
-On the web page, enter the student details such as:
+This makes it easier to deploy on Render.
 
-- age
-- gender
-- daily social media hours
-- platform usage
-- sleep hours
-- screen time before sleep
-- academic performance
-- physical activity
-- social interaction level
-- anxiety level
-- addiction level
-- depression label
+## Form Inputs
 
-After clicking `Predict`, the app will display the predicted `stress_level`.
+The Flask app sends form values into a pandas `DataFrame` before prediction.
+
+The current input fields are:
+
+- `age`
+- `gender`
+- `daily_social_media_hours`
+- `platform_usage`
+- `sleep_hours`
+- `screen_time_before_sleep`
+- `academic_performance`
+- `physical_activity`
+- `social_interaction_level`
+- `stress_level`
+- `anxiety_level`
+- `addiction_level`
+
+Important:
+
+- `depression_label` is not entered by the user because it is the prediction target
+- the input columns must match the training features exactly
+- categorical values are case-sensitive and must match the dataset exactly
+
+Current categorical values:
+
+- `gender`: `male`, `female`
+- `platform_usage`: `Instagram`, `TikTok`, `Both`
+- `social_interaction_level`: `low`, `medium`, `high`
+
+## Prediction Output
+
+When the form is submitted:
+
+- `1` is displayed as `At Risk of Depression`
+- `0` is displayed as `Not At Risk`
+
+The result is shown in a modal in the HTML interface.
+
+## Files Explained
+
+### `train_model.py`
+
+This script trains the machine learning model and saves it as `model.pkl`.
+
+### `app.py`
+
+This is the Flask application. It:
+
+- loads the saved model once at startup
+- collects user input from the form
+- converts the input into a pandas `DataFrame`
+- makes a prediction with `model.predict()`
+- returns a user-friendly result message
+
+### `templates/index.html`
+
+This file contains the form, page styling, and the modal used to display prediction results.
+
+### `data/mental_health.csv`
+
+This is the dataset used for training the model.
+
+### `model.pkl`
+
+This is the saved trained scikit-learn pipeline used by the Flask app.
+
+## Error Handling
+
+The Flask app wraps prediction in a `try/except` block. If something fails, the page shows a simple user-friendly error message instead of crashing.
 
 ## Quick Start
-
-If you want the shortest setup flow:
 
 ```bash
 python -m venv .venv
@@ -147,59 +233,11 @@ python train_model.py
 python app.py
 ```
 
-Then open:
-
-```text
-http://127.0.0.1:5000/
-```
-
-## Files Explained
-
-### `app.py`
-
-This is the Flask application.
-
-- loads `model.pkl`
-- shows the input form
-- collects submitted form values
-- converts the values into a pandas DataFrame
-- sends the data to the trained model for prediction
-- displays the predicted stress level on the page
-
-### `train_model.py`
-
-This is the machine learning training script.
-
-- loads the dataset
-- splits input features and target
-- preprocesses the data
-- trains the model
-- saves the model to `model.pkl`
-
-### `templates/index.html`
-
-This file contains the HTML form and inline CSS for the web interface.
-
-### `data/mental_health.csv`
-
-This is the dataset used for training.
-
-### `model.pkl`
-
-This is the saved trained model pipeline used by the Flask app.
-
-## Notes
-
-- The app predicts `stress_level`, not a medical diagnosis.
-- This project is best treated as a school or learning project.
-- `debug=True` is enabled in `app.py`, which is useful during development but should be disabled for production deployment.
-- If you retrain the model, `model.pkl` will be overwritten with the newest trained version.
-
 ## Troubleshooting
 
 ### `ModuleNotFoundError`
 
-Install dependencies again:
+Install the dependencies again:
 
 ```bash
 pip install -r requirements.txt
@@ -207,17 +245,17 @@ pip install -r requirements.txt
 
 ### `FileNotFoundError: model.pkl`
 
-Run the training script first:
+Train the model first:
 
 ```bash
 python train_model.py
 ```
 
-### Flask page does not open
+### Form submission fails
 
-- make sure `python app.py` is still running
-- check that you opened `http://127.0.0.1:5000/`
-- confirm no other app is already using port `5000`
+- make sure all fields are filled in
+- make sure categorical values match the dataset exactly
+- make sure `model.pkl` was created from the current training script
 
 ## GitHub
 
