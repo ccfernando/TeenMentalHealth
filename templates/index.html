@@ -31,9 +31,22 @@
         }
 
         label {
-            display: block;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
             margin-top: 14px;
             font-weight: bold;
+        }
+
+        .hint {
+            display: inline;
+            margin-top: 0;
+            color: #667085;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.4;
         }
 
         input,
@@ -113,6 +126,16 @@
             font-size: 15px;
         }
 
+        .error-message {
+            margin-top: 18px;
+            padding: 12px 14px;
+            background: #fff2f0;
+            border: 1px solid #f3b3ab;
+            border-radius: 10px;
+            color: #9a2c20;
+            font-size: 14px;
+        }
+
         .close-button {
             position: absolute;
             top: 10px;
@@ -139,53 +162,60 @@
         <h1>Teen Mental Health Predictor</h1>
         <p>Enter the details below to predict whether the student may be at risk of depression.</p>
 
+        {% if error_text %}
+            <div class="error-message">{{ error_text }}</div>
+        {% endif %}
+
         <form method="POST">
-            <label for="age">Age</label>
-            <input type="number" name="age" step="1" required>
+            <label for="age">Age <small class="hint">Whole number from 13 to 19</small></label>
+            <input type="number" id="age" name="age" min="13" max="19" step="1" inputmode="numeric" placeholder="13 to 19" value="{{ form_data.get('age', '') }}" required>
 
-            <label for="gender">Gender</label>
-            <select name="gender" required>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+            <label for="gender">Gender <small class="hint">Male or Female</small></label>
+            <select id="gender" name="gender" required>
+                <option value="" disabled {% if not form_data.get('gender') %}selected{% endif %}>Select gender</option>
+                <option value="male" {% if form_data.get('gender') == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if form_data.get('gender') == 'female' %}selected{% endif %}>Female</option>
             </select>
 
-            <label for="daily_social_media_hours">Daily Social Media Hours</label>
-            <input type="number" name="daily_social_media_hours" step="0.1" required>
+            <label for="daily_social_media_hours">Daily Social Media Hours <small class="hint">1.0 to 8.0 hours</small></label>
+            <input type="number" id="daily_social_media_hours" name="daily_social_media_hours" min="1" max="8" step="0.1" inputmode="decimal" placeholder="1.0 to 8.0" value="{{ form_data.get('daily_social_media_hours', '') }}" required>
 
-            <label for="platform_usage">Platform Usage</label>
-            <select name="platform_usage" required>
-                <option value="Instagram">Instagram</option>
-                <option value="TikTok">TikTok</option>
-                <option value="Both">Both</option>
+            <label for="platform_usage">Platform Usage <small class="hint">Instagram, TikTok, or Both</small></label>
+            <select id="platform_usage" name="platform_usage" required>
+                <option value="" disabled {% if not form_data.get('platform_usage') %}selected{% endif %}>Select platform usage</option>
+                <option value="Instagram" {% if form_data.get('platform_usage') == 'Instagram' %}selected{% endif %}>Instagram</option>
+                <option value="TikTok" {% if form_data.get('platform_usage') == 'TikTok' %}selected{% endif %}>TikTok</option>
+                <option value="Both" {% if form_data.get('platform_usage') == 'Both' %}selected{% endif %}>Both</option>
             </select>
 
-            <label for="sleep_hours">Sleep Hours</label>
-            <input type="number" name="sleep_hours" step="0.1" required>
+            <label for="sleep_hours">Sleep Hours <small class="hint">4.0 to 9.0 hours</small></label>
+            <input type="number" id="sleep_hours" name="sleep_hours" min="4" max="9" step="0.1" inputmode="decimal" placeholder="4.0 to 9.0" value="{{ form_data.get('sleep_hours', '') }}" required>
 
-            <label for="screen_time_before_sleep">Screen Time Before Sleep</label>
-            <input type="number" name="screen_time_before_sleep" step="0.1" required>
+            <label for="screen_time_before_sleep">Screen Time Before Sleep <small class="hint">0.5 to 3.0 hours</small></label>
+            <input type="number" id="screen_time_before_sleep" name="screen_time_before_sleep" min="0.5" max="3" step="0.1" inputmode="decimal" placeholder="0.5 to 3.0" value="{{ form_data.get('screen_time_before_sleep', '') }}" required>
 
-            <label for="academic_performance">Academic Performance</label>
-            <input type="number" name="academic_performance" step="0.01" required>
+            <label for="academic_performance">Academic Performance <small class="hint">2.00 to 4.00</small></label>
+            <input type="number" id="academic_performance" name="academic_performance" min="2" max="4" step="0.01" inputmode="decimal" placeholder="2.00 to 4.00" value="{{ form_data.get('academic_performance', '') }}" required>
 
-            <label for="physical_activity">Physical Activity</label>
-            <input type="number" name="physical_activity" step="0.1" required>
+            <label for="physical_activity">Physical Activity <small class="hint">0.0 to 2.0</small></label>
+            <input type="number" id="physical_activity" name="physical_activity" min="0" max="2" step="0.1" inputmode="decimal" placeholder="0.0 to 2.0" value="{{ form_data.get('physical_activity', '') }}" required>
 
-            <label for="social_interaction_level">Social Interaction Level</label>
-            <select name="social_interaction_level" required>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+            <label for="social_interaction_level">Social Interaction Level <small class="hint">Low, Medium, or High</small></label>
+            <select id="social_interaction_level" name="social_interaction_level" required>
+                <option value="" disabled {% if not form_data.get('social_interaction_level') %}selected{% endif %}>Select interaction level</option>
+                <option value="low" {% if form_data.get('social_interaction_level') == 'low' %}selected{% endif %}>Low</option>
+                <option value="medium" {% if form_data.get('social_interaction_level') == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="high" {% if form_data.get('social_interaction_level') == 'high' %}selected{% endif %}>High</option>
             </select>
 
-            <label for="stress_level">Stress Level</label>
-            <input type="number" name="stress_level" step="1" required>
+            <label for="stress_level">Stress Level <small class="hint">Whole number from 1 to 10</small></label>
+            <input type="number" id="stress_level" name="stress_level" min="1" max="10" step="1" inputmode="numeric" placeholder="1 to 10" value="{{ form_data.get('stress_level', '') }}" required>
 
-            <label for="anxiety_level">Anxiety Level</label>
-            <input type="number" name="anxiety_level" step="1" required>
+            <label for="anxiety_level">Anxiety Level <small class="hint">Whole number from 1 to 10</small></label>
+            <input type="number" id="anxiety_level" name="anxiety_level" min="1" max="10" step="1" inputmode="numeric" placeholder="1 to 10" value="{{ form_data.get('anxiety_level', '') }}" required>
 
-            <label for="addiction_level">Addiction Level</label>
-            <input type="number" name="addiction_level" step="1" required>
+            <label for="addiction_level">Addiction Level <small class="hint">Whole number from 1 to 10</small></label>
+            <input type="number" id="addiction_level" name="addiction_level" min="1" max="10" step="1" inputmode="numeric" placeholder="1 to 10" value="{{ form_data.get('addiction_level', '') }}" required>
 
             <button type="submit">Predict</button>
         </form>
