@@ -41,6 +41,7 @@ FEATURE_COLUMNS = list(
 @app.route("/", methods=["GET", "POST"])
 def home():
     prediction_text = None
+    confidence_text = None
 
     if request.method == "POST":
         try:
@@ -71,13 +72,25 @@ def home():
             else:
                 prediction_text = "Not At Risk"
 
+            if hasattr(model, "predict_proba"):
+                probabilities = model.predict_proba(input_data)[0]
+                class_labels = list(model.classes_)
+                predicted_index = class_labels.index(prediction)
+                confidence = probabilities[predicted_index] * 100
+                confidence_text = f"{confidence:.1f}%"
+
         except Exception:
             prediction_text = (
                 "Something went wrong while making the prediction. "
                 "Please check your inputs and try again."
             )
+            confidence_text = None
 
-    return render_template("index.html", prediction_text=prediction_text)
+    return render_template(
+        "index.html",
+        prediction_text=prediction_text,
+        confidence_text=confidence_text,
+    )
 
 
 if __name__ == "__main__":

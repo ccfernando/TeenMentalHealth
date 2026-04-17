@@ -104,6 +104,15 @@
             margin-bottom: 0;
         }
 
+        .confidence {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #f3f7ff;
+            border-radius: 10px;
+            color: #1f3c88;
+            font-size: 15px;
+        }
+
         .close-button {
             position: absolute;
             top: 10px;
@@ -188,6 +197,9 @@
                 <button class="close-button" id="closeModal" aria-label="Close modal">&times;</button>
                 <h2>Prediction Result</h2>
                 <p><strong>{{ prediction_text }}</strong></p>
+                {% if confidence_text %}
+                    <div class="confidence">Confidence: <strong>{{ confidence_text }}</strong></div>
+                {% endif %}
             </div>
         </div>
     {% endif %}
